@@ -3,7 +3,7 @@ package dev.lefredy.mestounes.registry
 import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import dev.lefredy.mestounes.registry.dao.LibrairyDao
+import dev.lefredy.mestounes.registry.dao.LibraryDao
 import dev.lefredy.mestounes.registry.entity.*
 import kotlinx.coroutines.CompletableDeferred
 
@@ -11,9 +11,10 @@ import kotlinx.coroutines.CompletableDeferred
 @Database(
     version = 1,
     entities = [
+        Source::class,
         Track::class,
         Artist::class,
-        Album::class,
+//        Album::class,
         Genre::class,
         Playlist::class,
         TrackArtistCrossRef::class,
@@ -22,7 +23,7 @@ import kotlinx.coroutines.CompletableDeferred
     ]
 )
 abstract class LibrairyDatabase: RoomDatabase() {
-    abstract fun librairyDao(): LibrairyDao
+    abstract fun librairyDao(): LibraryDao
 
     companion object {
 

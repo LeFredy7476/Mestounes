@@ -1,19 +1,10 @@
 package dev.lefredy.mestounes.registry.entity
 
-import androidx.room3.*
+import androidx.room3.ColumnInfo
 
-@Entity(
-    foreignKeys = [
-        ForeignKey(Artist::class, ["artistId"], ["artist"]),
-        ForeignKey(Track::class, ["trackId"], ["coverTrack"]),
-    ]
-)
-data class Album (
-    @PrimaryKey val albumId: Long,
-    val name: String,
-    val year: Int,
-    val artist: Long?,
-    val coverTrack: Long?,
-    val trackTotal: Int,
-    val discTotal: Int
+data class Album(
+    @ColumnInfo(name = "album") val album: String,
+    @ColumnInfo(name = "albumartist") val albumartist: String,
+    @ColumnInfo(name = "trackcount") val trackcount: Int,
+    @ColumnInfo(name = "date") val date: Int,
 )

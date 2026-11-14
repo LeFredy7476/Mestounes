@@ -6,6 +6,8 @@ import android.util.Log
 import com.simplecityapps.ktaglib.KTagLib
 
 
+// DEPRECTED
+
 object TagNames {
     const val DATE = "DATE"
     const val ARTIST = "ARTIST"
