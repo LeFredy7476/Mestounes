@@ -33,8 +33,4 @@ interface LibraryDao {
     @Transaction
     @Query("SELECT * FROM Track WHERE path = :path")
     suspend fun getTrackByPathWithArtist(path: String): TrackWithArtist
-
-    @Transaction
-    @Query("SELECT album, albumartist, COUNT(*) AS trackcount, MAX(date) as date FROM Track GROUP BY album, albumartist")
-    suspend fun getAlbums(): Album
 }

@@ -11,7 +11,7 @@ import kotlinx.coroutines.CompletableDeferred
 @Database(
     version = 1,
     entities = [
-        Source::class,
+//        Source::class,
         Track::class,
         Artist::class,
 //        Album::class,
@@ -22,20 +22,20 @@ import kotlinx.coroutines.CompletableDeferred
         TrackPlaylistCrossRef::class
     ]
 )
-abstract class LibrairyDatabase: RoomDatabase() {
-    abstract fun librairyDao(): LibraryDao
+abstract class LibraryDatabase: RoomDatabase() {
+    abstract fun libraryDao(): LibraryDao
 
     companion object {
 
-        private val instanceDeferred = CompletableDeferred<LibrairyDatabase>()
+        private val instanceDeferred = CompletableDeferred<LibraryDatabase>()
 
-        fun require(context: android.content.Context): LibrairyDatabase {
+        fun require(context: android.content.Context): LibraryDatabase {
             try {
                 return instanceDeferred.getCompleted()
             } catch (_: Exception) {
                 val db = Room.databaseBuilder(
                     context.applicationContext,
-                    LibrairyDatabase::class.java,
+                    LibraryDatabase::class.java,
                     "librairy.db"
                 ).build()
                 instanceDeferred.complete(db)
@@ -43,7 +43,7 @@ abstract class LibrairyDatabase: RoomDatabase() {
             }
         }
 
-        suspend fun require(): LibrairyDatabase {
+        suspend fun require(): LibraryDatabase {
             return instanceDeferred.await()
         }
     }

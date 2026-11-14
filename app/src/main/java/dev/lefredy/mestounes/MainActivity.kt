@@ -6,11 +6,10 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.ui.platform.LocalContext
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
-import dev.lefredy.mestounes.registry.LibrairyDatabase
+import dev.lefredy.mestounes.registry.LibraryDatabase
 import dev.lefredy.mestounes.ui.MainView
 import dev.lefredy.mestounes.viewModel.PlayerViewModel
 
@@ -25,7 +24,7 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         Log.d("MainActivity", "onStart called")
-        val librairyDatabase = LibrairyDatabase.require(applicationContext)
+        val libraryDatabase = LibraryDatabase.require(applicationContext)
 
         val sessionToken = SessionToken(this, ComponentName(this, MediaService::class.java))
         controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
