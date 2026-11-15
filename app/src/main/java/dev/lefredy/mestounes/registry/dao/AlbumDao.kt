@@ -6,6 +6,6 @@ import dev.lefredy.mestounes.registry.entity.*
 @Dao
 interface AlbumDao {
     @Transaction
-    @Query("SELECT album, albumartist, COUNT(*) AS trackcount, MAX(date) as date FROM Track GROUP BY album, albumartist")
-    suspend fun getAlbums(): Album
+    @Query("SELECT album, albumArtist, COUNT(*) AS trackCount, MAX(date) as date FROM tracks GROUP BY album, albumartist")
+    suspend fun getAlbums(): AlbumEntity
 }
