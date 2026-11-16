@@ -3,7 +3,11 @@ package dev.lefredy.mestounes.registry
 import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
-import dev.lefredy.mestounes.registry.dao.LibraryDao
+import dev.lefredy.mestounes.registry.dao.AlbumDao
+import dev.lefredy.mestounes.registry.dao.ArtistDao
+import dev.lefredy.mestounes.registry.dao.DirectoryDao
+import dev.lefredy.mestounes.registry.dao.GenreDao
+import dev.lefredy.mestounes.registry.dao.TrackDao
 import dev.lefredy.mestounes.registry.entity.*
 import kotlinx.coroutines.CompletableDeferred
 
@@ -11,24 +15,22 @@ import kotlinx.coroutines.CompletableDeferred
 @Database(
     version = 1,
     entities = [
-//        Source::class,
-        Track::class,
-        Artist::class,
-//        Album::class,
-        Genre::class,
-        Playlist::class,
-        TrackArtistCrossRef::class,
-        TrackGenreCrossRef::class,
-        TrackPlaylistCrossRef::class
-    ]
+        TrackEntity::class,
+        ArtistEntity::class,
+        GenreEntity::class,
+//        PlaylistEntity::class,
+    ],
+    exportSchema = false,
 )
 abstract class LibraryDatabase: RoomDatabase() {
-    abstract fun libraryDao(): LibraryDao
+    abstract fun trackDao(): TrackDao
+    abstract fun albumDao(): AlbumDao
+    abstract fun genreDao(): GenreDao
+    abstract fun artistDao(): ArtistDao
+    abstract fun directoryDao(): DirectoryDao
 
     companion object {
-
         private val instanceDeferred = CompletableDeferred<LibraryDatabase>()
-
         fun require(context: android.content.Context): LibraryDatabase {
             try {
                 return instanceDeferred.getCompleted()
@@ -36,15 +38,15 @@ abstract class LibraryDatabase: RoomDatabase() {
                 val db = Room.databaseBuilder(
                     context.applicationContext,
                     LibraryDatabase::class.java,
-                    "librairy.db"
+                    "library.db"
                 ).build()
                 instanceDeferred.complete(db)
                 return db
             }
         }
-
         suspend fun require(): LibraryDatabase {
             return instanceDeferred.await()
         }
     }
+
 }
