@@ -5,6 +5,7 @@ import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import dev.lefredy.mestounes.registry.dao.AlbumDao
 import dev.lefredy.mestounes.registry.dao.ArtistDao
+import dev.lefredy.mestounes.registry.dao.DirectoryDao
 import dev.lefredy.mestounes.registry.dao.GenreDao
 import dev.lefredy.mestounes.registry.dao.TrackDao
 import dev.lefredy.mestounes.registry.entity.*
@@ -14,12 +15,10 @@ import kotlinx.coroutines.CompletableDeferred
 @Database(
     version = 1,
     entities = [
-//        Source::class,
         TrackEntity::class,
         ArtistEntity::class,
-//        Album::class,
         GenreEntity::class,
-        PlaylistEntity::class,
+//        PlaylistEntity::class,
     ]
 )
 abstract class LibraryDatabase: RoomDatabase() {
@@ -27,6 +26,7 @@ abstract class LibraryDatabase: RoomDatabase() {
     abstract fun albumDao(): AlbumDao
     abstract fun genreDao(): GenreDao
     abstract fun artistDao(): ArtistDao
+    abstract fun directoryDao(): DirectoryDao
 
     companion object {
         private val instanceDeferred = CompletableDeferred<LibraryDatabase>()
