@@ -424,7 +424,7 @@ fun PlaybackSlider(isPlayerOpen: () -> Boolean) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(millisToText(mediaCurrentPosition))
-            Text(if (mediaDuration == 0L) "" else millisToText(mediaDuration))
+            Text(if (mediaDuration <= 0L) "" else millisToText(mediaDuration))
         }
     }
 

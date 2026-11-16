@@ -8,12 +8,19 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
+@JvmName("genreFromMap")
 private fun GenreAsync(emission: Map<String, Int>) = emission.map(::Genre)
+@JvmName("genreFromGenreEntity")
 private fun GenreAsync(emission: Iterable<GenreEntity>) = emission.map(::Genre)
+@JvmName("trackFromTrackWithArtist")
 private fun TrackAsync(emission: Iterable<TrackWithArtist>) = emission.map(::Track)
+@JvmName("artistFromArtistItem")
 private fun ArtistAsync(emission: Iterable<ArtistItem>) = emission.map(::Artist)
+@JvmName("artistFromString")
 private fun ArtistAsync(emission: Iterable<String>) = emission.map(::Artist)
+@JvmName("albumFromAlbumEntity")
 private fun AlbumAsync(emission: Iterable<AlbumEntity>) = emission.map(::Album)
+@JvmName("directoryFromDirectoryEntity")
 private fun DirectoryAsync(emission: Iterable<DirectoryEntity>) = emission.map(::Directory)
 
 @OptIn(ExperimentalCoroutinesApi::class)

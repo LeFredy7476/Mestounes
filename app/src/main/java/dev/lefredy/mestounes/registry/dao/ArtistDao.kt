@@ -18,8 +18,8 @@ interface ArtistDao {
     fun getFromTrackAsync(trackPath: String): Flow<List<ArtistEntity>>
 
     @Query("SELECT name FROM artists GROUP BY name")
-    suspend fun getAll(): Set<String>
+    suspend fun getAll(): List<String>
     @Query("SELECT name FROM artists GROUP BY name")
-    fun getAllAsync(): Flow<Set<String>>
+    fun getAllAsync(): Flow<List<String>>
 
 }

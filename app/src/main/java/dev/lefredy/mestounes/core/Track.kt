@@ -6,7 +6,7 @@ import dev.lefredy.mestounes.registry.entity.TrackWithArtist
 
 class Track private constructor (
     val path: String, // PRIMARY KEY, relative path to the root folder
-    var trackId: Long? = null, // server id, (null means local only)
+    var trackId: Long? = null, // LEGACY, server id (null means local only)
     var title: String, // if missing, default to filename
     val mediaLength: Long, // in millisecond
     var artists: MutableList<Artist>, // if empty, shows "unknown" in UI

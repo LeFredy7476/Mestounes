@@ -19,7 +19,8 @@ import kotlinx.coroutines.CompletableDeferred
         ArtistEntity::class,
         GenreEntity::class,
 //        PlaylistEntity::class,
-    ]
+    ],
+    exportSchema = false,
 )
 abstract class LibraryDatabase: RoomDatabase() {
     abstract fun trackDao(): TrackDao

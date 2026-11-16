@@ -21,8 +21,8 @@ interface AlbumDao {
     @Query("SELECT album AS name, albumArtist, COUNT(*) AS trackCount, MAX(date) AS date, SUM(mediaLength) AS totalLength FROM tracks WHERE albumArtist = :albumArtist GROUP BY album, albumArtist ORDER BY date ASC")
     fun getByAlbumArtistAsync(albumArtist: String): Flow<List<AlbumEntity>>
 
-    @Query("SELECT albumArtist FROM tracks GROUP BY albumArtist")
-    suspend fun getArtists(): Set<String>
-    @Query("SELECT albumArtist FROM tracks GROUP BY albumArtist")
-    fun getArtistsAsync(): Flow<Set<String>>
+    @Query("SELECT albumArtist FROM tracks GROUP BY albumArtist ORDER BY albumArtist")
+    suspend fun getArtists(): List<String>
+    @Query("SELECT albumArtist FROM tracks GROUP BY albumArtist ORDER BY albumArtist")
+    fun getArtistsAsync(): Flow<List<String>>
 }
