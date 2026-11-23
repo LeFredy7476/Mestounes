@@ -34,7 +34,7 @@ fun MainView() {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             PlayerScreen(screenPaddingValues = innerPadding) { playerSheetProxy ->
                 Box {
-                    LibraryScreen(navController, playerSheetProxy)
+                    MainScreen(navController, playerSheetProxy)
                 }
             }
         }
@@ -43,7 +43,10 @@ fun MainView() {
 
 
 @Composable
-fun SearchInputBar(onSearchExecuted: (String) -> Unit) {
+fun SearchInputBar(
+    label: String = "Search",
+    onSearchExecuted: (String) -> Unit
+) {
     var searchQuery by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -59,7 +62,7 @@ fun SearchInputBar(onSearchExecuted: (String) -> Unit) {
         onValueChange = { searchQuery = it },
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         label = {
-            Text("path")
+            Text(label)
         },
 //        leadingIcon = {
 //            Icon(
