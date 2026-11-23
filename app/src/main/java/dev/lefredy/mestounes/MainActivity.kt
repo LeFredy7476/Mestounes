@@ -10,6 +10,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import dev.lefredy.mestounes.registry.LibraryDatabase
+import dev.lefredy.mestounes.registry.LocalLibrary
 import dev.lefredy.mestounes.ui.MainView
 import dev.lefredy.mestounes.viewModel.PlayerViewModel
 
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         Log.d("MainActivity", "onStart called")
         val libraryDatabase = LibraryDatabase.require(applicationContext)
+        val localLibrary = LocalLibrary.require(applicationContext)
 
         val sessionToken = SessionToken(this, ComponentName(this, MediaService::class.java))
         controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()

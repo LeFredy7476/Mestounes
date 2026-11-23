@@ -35,6 +35,11 @@ class Track private constructor (
         trackEntity.track.comment,
     )
 
+    fun fromMetadata(metadata: Map<String, List<String>>): Track? {
+        // TODO: import all attributes from the metadata following tag logic in comments
+        return null
+    }
+
     fun toTrackEntity() = TrackEntity(
         path, trackId, title, mediaLength, album, albumArtist.name,
         composer, date, trackNumber, discNumber, comment,
