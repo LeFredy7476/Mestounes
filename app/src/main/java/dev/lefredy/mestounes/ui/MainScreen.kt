@@ -80,9 +80,7 @@ fun MainScreen(
             MainTab.Playlist -> TabPlaceholderView(tab.title) {
                 Icons.QueueMusic(Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
             } // TODO: Issue #9 - PlaylistList view
-            MainTab.Artists -> TabPlaceholderView(tab.title) {
-                Icons.Artist(Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
-            } // TODO: Issue #8 - ArtistList view
+            MainTab.Artists -> ArtistListView()
             MainTab.Albums -> TabPlaceholderView(tab.title) {
                 Icons.Album(Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
             } // TODO: Issue #7 - AlbumList view
