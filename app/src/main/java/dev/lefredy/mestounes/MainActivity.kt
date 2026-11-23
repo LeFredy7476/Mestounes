@@ -10,6 +10,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import dev.lefredy.mestounes.registry.LibraryDatabase
+import dev.lefredy.mestounes.registry.LocalLibrary
 import dev.lefredy.mestounes.ui.MainView
 import dev.lefredy.mestounes.viewModel.PlayerViewModel
 
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         Log.d("MainActivity", "onCreate called")
+        LocalLibrary.require(applicationContext)
         enableEdgeToEdge()
         setContent { MainView() }
     }
