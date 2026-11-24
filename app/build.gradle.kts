@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.security.crypto)
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.2")
 //    implementation("com.github.mahozad:wavy-slider:0.8.0")
