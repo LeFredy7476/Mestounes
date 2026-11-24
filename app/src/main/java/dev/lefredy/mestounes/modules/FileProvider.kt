@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import dev.lefredy.mestounes.registry.LibraryDatabase
+import android.util.Log
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FileProvider private constructor(
@@ -75,5 +76,29 @@ class FileProvider private constructor(
 
     fun onPlaybackError(track: Track, error: PlaybackException): Unit {
         // TODO: check the cause of the error, act accordingly
+        // Log the error
+        Log.e("FileProvider", "Playback error [${error.errorCodeName}] on track: ${track.title} (${track.path})", error)
+        
+        when (error.errorCode) {
+            PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND -> {
+                if (track.trackId == null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val db = LibraryDatabase.require(context)
+                        db.trackDao().delete(track.toTrackEntity())
+                        db.artistDao().deleteFromTrack(track.path)
+                    }
+                }
+            }
+
+            PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED -> {
+                Log.w("FileProvider", "Network lost while streaming ${track.title}")
+            }
+            PlaybackException.ERROR_CODE_DECODING_FAILED, PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED -> {
+                Log.w("FileProvider", "Corrupted or unreadable audio file for ${track.title}")
+            }
+            else -> {
+                Log.w("FileProvider", "Unhandled playback error code: ${error.errorCode}")
+            }
+        }
     }
 }
