@@ -81,8 +81,8 @@ class Track private constructor (
                 id3v2["COMPOSER"]?.getOrNull(0)?.trim() ?:
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER)?.trim()
             val date: Int? =
-                id3v2["DATE"]?.joinToString("-")?.trim()?.split("-", ".", " ")?.first{it.isDigitsOnly() && it.length == 4}?.toInt() ?:
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)?.trim()?.split("-", ".", " ")?.first{it.isDigitsOnly() && it.length == 4}?.toInt() ?:
+                id3v2["DATE"]?.joinToString("-")?.trim()?.split("-", ".", " ")?.firstOrNull{it.isDigitsOnly() && it.length == 4}?.toInt() ?:
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)?.trim()?.split("-", ".", " ")?.firstOrNull{it.isDigitsOnly() && it.length == 4}?.toInt() ?:
                 id3v2["YEAR"]?.getOrNull(0)?.trim()?.toInt() ?:
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)?.trim()?.toInt()
             val genres: List<String> =
@@ -90,11 +90,11 @@ class Track private constructor (
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)?.lowercase()?.split(",", ";", "feat.")?.map(String::trim) ?:
                 listOf()
             val trackNumber: Int =
-                id3v2["TRACKNUMBER"]?.getOrNull(0)?.toInt() ?:
+                id3v2["TRACKNUMBER"]?.getOrNull(0)?.split("/")?.firstOrNull()?.toInt() ?:
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)?.toInt() ?:
                 0
             val discNumber: Int =
-                id3v2["DISCNUMBER"]?.getOrNull(0)?.toInt() ?:
+                id3v2["DISCNUMBER"]?.getOrNull(0)?.split("/")?.firstOrNull()?.toInt() ?:
                 retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER)?.toInt() ?:
                 0
             val comment: String =
