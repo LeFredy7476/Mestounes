@@ -70,14 +70,19 @@ class FileProvider private constructor(
                     for (file in mp3Files) {
                         if (file.lastModified() > lastUpdate) {
                             try {
-                                val track = Track.fromMetadata(context, Uri.fromFile(file))                               
-                                library.saveTrack(track)
-                                Log.d("FileProvider", "Indexed local track: ${track.title}")
+                                val track = Track.fromMetadata(context, Uri.fromFile(file))
+                                if (library.getTrackRaw(track.path)?.trackId == null) {
+                                    // only upsert file in library if it does not conflict with a server-owned entry
+                                    library.saveTrack(track)
+                                    Log.d("FileProvider", "Indexed local track: ${track.title}")
+                                }
                             } catch (e: Exception) {
                                 Log.e("FileProvider", "Failed to parse: ${file.absolutePath}", e)
                             }
                         }
                     }
+                } else {
+                    Log.d("FileProvider", "Library root folder doesn't exist")
                 }
             } catch (e: Exception) {
                 Log.e("FileProvider", "Error during onStartup scan", e)

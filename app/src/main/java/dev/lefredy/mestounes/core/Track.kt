@@ -41,6 +41,21 @@ class Track private constructor (
         trackEntity.track.discNumber,
         trackEntity.track.comment,
     )
+    constructor (trackEntity: TrackEntity): this (
+        trackEntity.path,
+        trackEntity.trackId,
+        trackEntity.title,
+        trackEntity.mediaLength,
+        mutableListOf(),
+        trackEntity.album,
+        Artist(trackEntity.albumArtist),
+        trackEntity.composer,
+        trackEntity.date,
+        null,
+        trackEntity.trackNumber,
+        trackEntity.discNumber,
+        trackEntity.comment,
+    )
 
     companion object {
         // WILL TAKE TIME
