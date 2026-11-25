@@ -2,7 +2,6 @@ package dev.lefredy.mestounes.core
 
 import dev.lefredy.mestounes.registry.LocalLibrary
 import dev.lefredy.mestounes.registry.entity.PlaylistEntity
-import dev.lefredy.mestounes.utils.currentTimestamp
 import java.util.UUID
 
 class Playlist private constructor(
@@ -42,7 +41,7 @@ class Playlist private constructor(
 
     suspend fun save(): Playlist {
         val localLibrary = LocalLibrary.require()
-        updatedAt = currentTimestamp()
+        updatedAt = System.currentTimeMillis()
         if (id == null) {
             id = localLibrary.insertPlaylist(this).id
         }
@@ -57,7 +56,7 @@ class Playlist private constructor(
 
     suspend fun saveWithTracks(): Playlist {
         val localLibrary = LocalLibrary.require()
-        updatedAt = currentTimestamp()
+        updatedAt = System.currentTimeMillis()
         if (id == null) {
             id = localLibrary.insertPlaylist(this).id
         }
@@ -75,7 +74,7 @@ class Playlist private constructor(
         if (id == null) return
         deleted = true
         tracks.clear()
-        updatedAt = currentTimestamp()
+        updatedAt = System.currentTimeMillis()
         saveWithTracks()
         if (owned && playlistRef != null) {
             // call server for deletion
