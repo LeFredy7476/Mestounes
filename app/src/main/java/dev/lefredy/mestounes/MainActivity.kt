@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         Log.d("MainActivity", "onStart called")
-        val libraryDatabase = LibraryDatabase.require(applicationContext)
+
         val localLibrary = LocalLibrary.require(applicationContext)
 
         val sessionToken = SessionToken(this, ComponentName(this, MediaService::class.java))
