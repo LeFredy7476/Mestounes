@@ -7,6 +7,7 @@ import androidx.media3.session.MediaSessionService
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import dev.lefredy.mestounes.registry.LibraryDatabase
+import dev.lefredy.mestounes.registry.LocalLibrary
 import dev.lefredy.mestounes.viewModel.PlayerViewModel
 
 
@@ -20,7 +21,7 @@ class MediaService : MediaSessionService() {
 
         Log.d("MediaService", "onCreate called")
 
-        val libraryDatabase = LibraryDatabase.require(applicationContext)
+        val localLibrary = LocalLibrary.require(applicationContext)
 
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)

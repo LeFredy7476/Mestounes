@@ -28,25 +28,4 @@ abstract class LibraryDatabase: RoomDatabase() {
     abstract fun genreDao(): GenreDao
     abstract fun artistDao(): ArtistDao
     abstract fun directoryDao(): DirectoryDao
-
-    companion object {
-        private val instanceDeferred = CompletableDeferred<LibraryDatabase>()
-        fun require(context: android.content.Context): LibraryDatabase {
-            try {
-                return instanceDeferred.getCompleted()
-            } catch (_: Exception) {
-                val db = Room.databaseBuilder(
-                    context.applicationContext,
-                    LibraryDatabase::class.java,
-                    "library.db"
-                ).build()
-                instanceDeferred.complete(db)
-                return db
-            }
-        }
-        suspend fun require(): LibraryDatabase {
-            return instanceDeferred.await()
-        }
-    }
-
 }
