@@ -1,6 +1,5 @@
 package dev.lefredy.mestounes.registry
 
-import androidx.compose.ui.graphics.Path
 import androidx.room3.Room
 import dev.lefredy.mestounes.core.*
 import dev.lefredy.mestounes.registry.entity.*
@@ -17,6 +16,8 @@ private fun GenreAsync(emission: Iterable<GenreEntity>) = emission.map(::Genre)
 private fun TrackAsync(emission: Iterable<TrackWithArtist>) = emission.map(::Track)
 @JvmName("artistFromArtistItem")
 private fun ArtistAsync(emission: Iterable<ArtistItem>) = emission.map(::Artist)
+@JvmName("artistFromArtistEntity")
+private fun ArtistAsync(emission: Iterable<ArtistEntity>) = emission.map(::Artist)
 @JvmName("artistFromString")
 private fun ArtistAsync(emission: Iterable<String>) = emission.map(::Artist)
 @JvmName("albumFromAlbumEntity")
@@ -94,6 +95,9 @@ class LocalLibrary private constructor(
     suspend fun getArtists() = libraryDatabase.artistDao().getAll().map(::Artist)
     fun getArtistsAsync() = libraryDatabase.artistDao().getAllAsync().map(::ArtistAsync)
 
+    suspend fun getArtistsFromTrack(track: Track) = libraryDatabase.artistDao().getFromTrack(track.path).map(::Artist)
+    fun getArtistsFromTrackAsync(track: Track) = libraryDatabase.artistDao().getFromTrackAsync(track.path).map(::ArtistAsync)
+
     suspend fun getAlbumArtists() = libraryDatabase.albumDao().getArtists().map(::Artist)
     fun getAlbumArtistsAsync() = libraryDatabase.albumDao().getArtistsAsync().map(::ArtistAsync)
 
@@ -117,4 +121,24 @@ class LocalLibrary private constructor(
 
     suspend fun getTracksByDirectory(directory: Directory) = libraryDatabase.trackDao().getByDirectory(directory.directory).map(::Track)
     fun getTracksByDirectoryAsync(directory: Directory) = libraryDatabase.trackDao().getByDirectoryAsync(directory.directory).map(::TrackAsync)
+
+
+    suspend fun insertPlaylist(playlist: Playlist): Playlist {
+        return Playlist(libraryDatabase.playlistDao().insertPlaylist(playlist.toPlaylistEntity()))
+    }
+
+    suspend fun updatePlaylist(playlist: Playlist) {
+        if (playlist.id == null) return
+        libraryDatabase.playlistDao().updatePlaylist(playlist.toPlaylistEntity())
+    }
+
+    suspend fun getPlaylists() = libraryDatabase.playlistDao().getAll().map(::Playlist)
+
+    suspend fun getPlaylistTracks(playlist: Playlist) = playlist.id?.let{libraryDatabase.playlistDao().getPlaylistTracks(it).map(::Track)} ?: listOf()
+
+    suspend fun fillPlaylist(playlist: Playlist) {
+        if (playlist.id == null) return
+        libraryDatabase.playlistDao().clearPlaylist(playlist.id!!)
+        libraryDatabase.playlistDao().fillPlaylist(playlist.tracks.mapIndexed { index, track -> PlaylistItem(playlist.id!!, track.path, index.toShort()) })
+    }
 }
