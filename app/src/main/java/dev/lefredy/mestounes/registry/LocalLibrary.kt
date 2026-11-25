@@ -59,6 +59,10 @@ class LocalLibrary private constructor(
         track.genres?.forEach { libraryDatabase.genreDao().insert(GenreEntity(track.path, it.name)) }
         track.genres?.let { libraryDatabase.genreDao().deleteUnusedFromTrack(track.path, it.map{g->g.name}.toSet()) }
     }
+    
+    suspend fun deleteTrack(track: Track) {
+        libraryDatabase.trackDao().delete(track.toTrackEntity())
+    }
 
     suspend fun getTracks() = libraryDatabase.trackDao().getAll().map(::Track)
     fun getTracksAsync() = libraryDatabase.trackDao().getAllAsync().map(::TrackAsync)
