@@ -18,9 +18,14 @@ interface TrackDao {
     fun getAllAsync(): Flow<List<TrackWithArtist>>
 
     @Transaction @Query("SELECT * FROM tracks WHERE path = :path")
-    suspend fun get(path: String): TrackWithArtist
+    suspend fun get(path: String): TrackWithArtist?
     @Transaction @Query("SELECT * FROM tracks WHERE path = :path")
-    fun getAsync(path: String): Flow<TrackWithArtist>
+    fun getAsync(path: String): Flow<TrackWithArtist?>
+
+    @Transaction @Query("SELECT * FROM tracks WHERE path = :path")
+    suspend fun getRaw(path: String): TrackEntity?
+    @Transaction @Query("SELECT * FROM tracks WHERE path = :path")
+    fun getRawAsync(path: String): Flow<TrackEntity?>
 
     @Transaction @Query("SELECT * FROM tracks WHERE album = :album AND albumArtist = :albumArtist")
     suspend fun getByAlbum(album: String, albumArtist: String): List<TrackWithArtist>

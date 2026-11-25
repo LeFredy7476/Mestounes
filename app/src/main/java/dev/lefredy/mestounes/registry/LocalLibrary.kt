@@ -1,5 +1,6 @@
 package dev.lefredy.mestounes.registry
 
+import androidx.compose.ui.graphics.Path
 import androidx.room3.Room
 import dev.lefredy.mestounes.core.*
 import dev.lefredy.mestounes.registry.entity.*
@@ -59,9 +60,21 @@ class LocalLibrary private constructor(
         track.genres?.forEach { libraryDatabase.genreDao().insert(GenreEntity(track.path, it.name)) }
         track.genres?.let { libraryDatabase.genreDao().deleteUnusedFromTrack(track.path, it.map{g->g.name}.toSet()) }
     }
+    
+    suspend fun deleteTrack(track: Track) {
+        libraryDatabase.trackDao().delete(track.toTrackEntity())
+        libraryDatabase.genreDao().deleteFromTrack(track.path)
+        libraryDatabase.artistDao().deleteFromTrack(track.path)
+    }
 
     suspend fun getTracks() = libraryDatabase.trackDao().getAll().map(::Track)
     fun getTracksAsync() = libraryDatabase.trackDao().getAllAsync().map(::TrackAsync)
+
+    suspend fun getTrack(path: String) = libraryDatabase.trackDao().get(path)?.let(::Track)
+    fun getTrackAsync(path: String) = libraryDatabase.trackDao().getAsync(path).map{it?.let(::Track)}
+
+    suspend fun getTrackRaw(path: String) = libraryDatabase.trackDao().getRaw(path)?.let(::Track)
+    fun getTrackRawAsync(path: String) = libraryDatabase.trackDao().getRawAsync(path).map{it?.let(::Track)}
 
     suspend fun getTracksByAlbum(album: String, albumArtist: String) = libraryDatabase.trackDao().getByAlbumOrdered(album, albumArtist).map(::Track)
     fun getTracksByAlbumAsync(album: String, albumArtist: String) = libraryDatabase.trackDao().getByAlbumOrderedAsync(album, albumArtist).map(::TrackAsync)
