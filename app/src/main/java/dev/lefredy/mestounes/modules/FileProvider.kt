@@ -9,13 +9,8 @@ import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import dev.lefredy.mestounes.registry.LibraryDatabase
 import android.util.Log
-import android.media.MediaMetadataRetriever
 import dev.lefredy.mestounes.registry.LocalLibrary
-import dev.lefredy.mestounes.registry.entity.TrackEntity
-import dev.lefredy.mestounes.registry.entity.TrackWithArtist
-import dev.lefredy.mestounes.registry.entity.ArtistItem
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FileProvider private constructor(
@@ -50,7 +45,6 @@ class FileProvider private constructor(
         // TODO: start a thread to scan library
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val db = LibraryDatabase.require(context)
                 val library = LocalLibrary.require(context)
                 // loop through library and get all tracks with no trackId
                 //   - for each, check if file still exist, if not : delete the entry
@@ -60,9 +54,7 @@ class FileProvider private constructor(
                         val file = File(track.path)
                         val resolvedFile = if (file.isAbsolute) file else File("/storage/emulated/0/Music", track.path)
                         if (!resolvedFile.exists()) {
-                            db.trackDao().delete(track.toTrackEntity())
-                            db.artistDao().deleteFromTrack(track.path)
-                            db.genreDao().deleteUnusedFromTrack(track.path, emptySet())
+                            library.deleteTrack(track)
                             Log.d("FileProvider", "Removed deleted local track: ${track.path}")
                         }
                     }
@@ -78,11 +70,9 @@ class FileProvider private constructor(
                     for (file in mp3Files) {
                         if (file.lastModified() > lastUpdate) {
                             try {
-                                val track = parseTrackFromFile(file)
-                                if (track != null) {
-                                    library.saveTrack(track)
-                                    Log.d("FileProvider", "Indexed local track: ${track.title}")
-                                }
+                                val track = Track.fromMetadata(context, Uri.fromFile(file))                               
+                                library.saveTrack(track)
+                                Log.d("FileProvider", "Indexed local track: ${track.title}")
                             } catch (e: Exception) {
                                 Log.e("FileProvider", "Failed to parse: ${file.absolutePath}", e)
                             }
@@ -92,53 +82,6 @@ class FileProvider private constructor(
             } catch (e: Exception) {
                 Log.e("FileProvider", "Error during onStartup scan", e)
             }
-        }
-    }
-
-    // helper function that extracts the metadata from a local file and maps it into a Track that's ready for database insertion
-    private fun parseTrackFromFile(file: File): Track? {
-        val retriever = MediaMetadataRetriever()
-        return try {
-            retriever.setDataSource(file.absolutePath)
-            val title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-                ?: file.nameWithoutExtension
-            val artistName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-                ?: "Unknown"
-            val album = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-                ?: file.parentFile?.name ?: "Unknown"
-            val albumArtist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST)
-                ?: artistName
-            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                ?.toLongOrNull() ?: 0L
-            val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)
-                ?.toIntOrNull()
-            val trackNumber = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)
-                ?.split("/")?.firstOrNull()?.toIntOrNull() ?: 0
-            val discNumber = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER)
-                ?.split("/")?.firstOrNull()?.toIntOrNull() ?: 0
-
-            val trackEntity = TrackEntity(
-                path = file.absolutePath,
-                trackId = null,
-                title = title,
-                mediaLength = duration,
-                album = album,
-                albumArtist = albumArtist,
-                composer = null,
-                date = date,
-                trackNumber = trackNumber,
-                discNumber = discNumber,
-                comment = ""
-            )
-
-            Track(TrackWithArtist(
-                    track = trackEntity,
-                    artists = listOf(ArtistItem(name = artistName, index = 0))
-                )
-            )
-            
-        } finally {
-            retriever.release()
         }
     }
 
@@ -159,9 +102,7 @@ class FileProvider private constructor(
             Uri.parse("https://api.lestounes/v1/library/track/file/${track.trackId}")
         } else {
             CoroutineScope(Dispatchers.IO).launch {
-                val db = LibraryDatabase.require(context)
-                db.trackDao().delete(track.toTrackEntity())
-                db.artistDao().deleteFromTrack(track.path)
+                LocalLibrary.require(context).deleteTrack(track)
             }
             null
         }
@@ -176,9 +117,7 @@ class FileProvider private constructor(
             PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND -> {
                 if (track.trackId == null) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        val db = LibraryDatabase.require(context)
-                        db.trackDao().delete(track.toTrackEntity())
-                        db.artistDao().deleteFromTrack(track.path)
+                        LocalLibrary.require(context).deleteTrack(track)
                     }
                 }
             }
