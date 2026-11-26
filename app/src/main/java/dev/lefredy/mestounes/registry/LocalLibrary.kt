@@ -1,6 +1,7 @@
 package dev.lefredy.mestounes.registry
 
 import androidx.room3.Room
+import androidx.room3.Transaction
 import dev.lefredy.mestounes.core.*
 import dev.lefredy.mestounes.registry.entity.*
 import kotlinx.coroutines.CompletableDeferred
@@ -39,7 +40,7 @@ class LocalLibrary private constructor(
                     context.applicationContext,
                     LibraryDatabase::class.java,
                     "library.db"
-                ).build())
+                ).fallbackToDestructiveMigration().build())
                 instanceDeferred.complete(localLibrary)
                 return localLibrary
             }
@@ -123,8 +124,8 @@ class LocalLibrary private constructor(
     fun getTracksByDirectoryAsync(directory: Directory) = libraryDatabase.trackDao().getByDirectoryAsync(directory.directory).map(::TrackAsync)
 
 
-    suspend fun insertPlaylist(playlist: Playlist): Playlist {
-        return Playlist(libraryDatabase.playlistDao().insertPlaylist(playlist.toPlaylistEntity()))
+    suspend fun insertPlaylist(playlist: Playlist): Long {
+        return libraryDatabase.playlistDao().insertPlaylist(playlist.toPlaylistEntity())
     }
 
     suspend fun updatePlaylist(playlist: Playlist) {
@@ -148,8 +149,8 @@ class LocalLibrary private constructor(
     }
 
     suspend fun fillPlaylist(playlist: Playlist) {
-        if (playlist.id == null) return
+        if (playlist.id == null || playlist.tracks == null) return
         libraryDatabase.playlistDao().clearPlaylist(playlist.id!!)
-        libraryDatabase.playlistDao().fillPlaylist(playlist.tracks.mapIndexed { index, track -> PlaylistItem(playlist.id!!, track.path, index.toShort()) })
+        libraryDatabase.playlistDao().fillPlaylist(playlist.tracks!!.mapIndexed { index, track -> PlaylistItem(playlist.id!!, track.path, index.toShort()) })
     }
 }

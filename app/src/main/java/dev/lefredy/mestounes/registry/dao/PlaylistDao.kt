@@ -35,7 +35,7 @@ interface PlaylistDao {
     suspend fun fillPlaylist(playlistItems: List<PlaylistItem>)
 
     @Insert
-    suspend fun insertPlaylist(playlistEntity: PlaylistEntity): PlaylistEntity
+    suspend fun insertPlaylist(playlistEntity: PlaylistEntity): Long
 
     @Delete
     suspend fun deletePlaylist(playlistEntity: PlaylistEntity)

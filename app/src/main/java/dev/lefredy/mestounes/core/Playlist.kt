@@ -11,7 +11,7 @@ class Playlist private constructor(
     var playlistRef: UUID?, // null if local only
     var updatedAt: Long,
     var deleted: Boolean,
-    val tracks: MutableList<Track>
+    var tracks: MutableList<Track>?
 ) {
     constructor (playlistEntity: PlaylistEntity): this (
         playlistEntity.id,
@@ -20,7 +20,7 @@ class Playlist private constructor(
         playlistEntity.playlistRef,
         playlistEntity.updatedAt,
         playlistEntity.deleted,
-        mutableListOf()
+        null
     )
 
     companion object {
@@ -34,14 +34,13 @@ class Playlist private constructor(
     )
 
     suspend fun fetchTracks(): Playlist {
-        if (tracks.isEmpty() && id != null) {
-            tracks.addAll(LocalLibrary.require().getPlaylistTracks(this))
+        if (tracks == null && id != null) {
+            tracks = LocalLibrary.require().getPlaylistTracks(this).toMutableList()
         }
         return this
     }
     suspend fun forceFetchTracks(): Playlist {
-        tracks.clear()
-        tracks.addAll(LocalLibrary.require().getPlaylistTracks(this))
+        tracks = LocalLibrary.require().getPlaylistTracks(this).toMutableList()
         return this
     }
 
@@ -49,7 +48,7 @@ class Playlist private constructor(
         val localLibrary = LocalLibrary.require()
         updatedAt = System.currentTimeMillis()
         if (id == null) {
-            id = localLibrary.insertPlaylist(this).id
+            id = localLibrary.insertPlaylist(this)
         }
         else {
             localLibrary.updatePlaylist(this)
@@ -64,7 +63,7 @@ class Playlist private constructor(
         val localLibrary = LocalLibrary.require()
         updatedAt = System.currentTimeMillis()
         if (id == null) {
-            id = localLibrary.insertPlaylist(this).id
+            id = localLibrary.insertPlaylist(this)
         }
         else {
             localLibrary.updatePlaylist(this)
@@ -78,13 +77,26 @@ class Playlist private constructor(
 
     suspend fun delete() {
         if (id == null) return
+        if (playlistRef == null) {
+            return LocalLibrary.require().deletePlaylist(this)
+        }
         deleted = true
-        tracks.clear()
+        tracks?.clear()
         updatedAt = System.currentTimeMillis()
         saveWithTracks()
         if (owned && playlistRef != null) {
             // call server for deletion
             // if succesful, call LocalLibrary.require().deletePlaylist(this)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Playlist) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
     }
 }

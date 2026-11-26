@@ -5,7 +5,7 @@ import java.util.UUID
 
 @Entity(
     tableName = "playlists",
-    indices = [Index(value = ["playlistId"], unique = true)]
+    indices = [Index(value = ["playlistRef"], unique = true)]
 )
 data class PlaylistEntity (
     @PrimaryKey(autoGenerate = true) val id: Long?,
@@ -18,8 +18,8 @@ data class PlaylistEntity (
 
 @Entity(
     tableName = "playlist_tracks",
-    primaryKeys = ["path", "id"],
-    indices = [Index("path", "id")],
+    primaryKeys = ["path", "id", "index"],
+    indices = [Index("id")],
     foreignKeys = [
         ForeignKey(PlaylistEntity::class, ["id"], ["id"], onDelete = ForeignKey.CASCADE),
         ForeignKey(TrackEntity::class, ["path"], ["path"], onDelete = ForeignKey.CASCADE)
