@@ -27,4 +27,17 @@ class MediaPlayer private constructor(
         }
     }
 
+    fun executePlay() {
+
+    }
+    fun executeStop() {
+
+    }
+    fun executeNext() {
+
+    }
+    fun executePrev() {
+        
+    }
+
 }
