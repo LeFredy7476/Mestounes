@@ -13,7 +13,7 @@ import dev.lefredy.mestounes.viewModel.PlayerViewModel
 
 class MediaService : MediaSessionService() {
 
-    private val playerViewModel = PlayerViewModel.require() // DEPRECTED
+    private val playerViewModel = PlayerViewModel.require() // DEPRECATED
     private val mediaPlayer = MediaPlayer.require()
     private var mediaPlayerCleanup: () -> Unit = {}
     private var exoPlayer: ExoPlayer? = null
@@ -41,7 +41,7 @@ class MediaService : MediaSessionService() {
         exoPlayer = player
         mediaSession = MediaSession.Builder(this, player).build()
         mediaPlayerCleanup = mediaPlayer.init(player)
-        playerViewModel.setupPlayer(player) // DEPRECTED
+        playerViewModel.setupPlayer(player) // DEPRECATED
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
@@ -53,7 +53,7 @@ class MediaService : MediaSessionService() {
         Log.d("MediaService", "onDestroy called")
 
         mediaPlayerCleanup()
-        playerViewModel.clearPlayer() // DEPRECTED
+        playerViewModel.clearPlayer() // DEPRECATED
         mediaSession?.run {
             player.release()
             release()
