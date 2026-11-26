@@ -10,10 +10,11 @@ import dev.lefredy.mestounes.registry.LocalLibrary
 import dev.lefredy.mestounes.registry.entity.TrackEntity
 import dev.lefredy.mestounes.registry.entity.TrackWithArtist
 import java.io.File
+import java.util.UUID
 
 class Track private constructor (
     val path: String, // PRIMARY KEY, relative path to the root folder
-    var trackId: Long? = null, // LEGACY, server id (null means local only)
+    var trackId: UUID? = null, // LEGACY, server id (null means local only)
     var title: String, // if missing, default to filename
     val mediaLength: Long, // in millisecond
     var artists: MutableList<Artist>, // if empty, shows "unknown" in UI
@@ -130,6 +131,13 @@ class Track private constructor (
         path, trackId, title, mediaLength, album, albumArtist.name,
         composer, date, trackNumber, discNumber, comment,
     )
+
+    suspend fun fetchArtist(): Track {
+        if (artists.isEmpty()) {
+            artists.addAll(LocalLibrary.require().getArtistsFromTrack(this))
+        }
+        return this
+    }
 
     suspend fun fetchGenres(): Track {
         genres = genres ?: LocalLibrary.require().getTrackGenres(this).toMutableSet()
