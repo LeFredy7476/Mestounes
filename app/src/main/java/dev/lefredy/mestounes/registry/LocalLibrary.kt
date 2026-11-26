@@ -138,6 +138,15 @@ class LocalLibrary private constructor(
 
     suspend fun getPlaylistTracks(playlist: Playlist) = playlist.id?.let{libraryDatabase.playlistDao().getPlaylistTracks(it).map(::Track)} ?: listOf()
 
+    suspend fun flushDeletedPlaylists() {
+        libraryDatabase.playlistDao().flushDeletedPlaylists()
+    }
+
+    suspend fun deletePlaylist(playlist: Playlist) {
+        if (playlist.id == null) return
+        libraryDatabase.playlistDao().deletePlaylist(playlist.toPlaylistEntity())
+    }
+
     suspend fun fillPlaylist(playlist: Playlist) {
         if (playlist.id == null) return
         libraryDatabase.playlistDao().clearPlaylist(playlist.id!!)

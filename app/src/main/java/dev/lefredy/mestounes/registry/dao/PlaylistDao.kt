@@ -42,4 +42,8 @@ interface PlaylistDao {
 
     @Update
     suspend fun updatePlaylist(playlistEntity: PlaylistEntity)
+
+    @Transaction
+    @Query("DELETE FROM playlists WHERE deleted = 1")
+    suspend fun flushDeletedPlaylists()
 }
