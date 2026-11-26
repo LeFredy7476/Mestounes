@@ -45,4 +45,6 @@ object Icons {
         Icon(painterResource(R.drawable.more_vert_24px), description, modifier, tint)
     @Composable fun Close(modifier: Modifier = Modifier, tint: Color = LocalContentColor.current, description: String = "Close") =
         Icon(painterResource(R.drawable.close_24px), description, modifier, tint)
+    @Composable fun Check(modifier: Modifier = Modifier, tint: Color = LocalContentColor.current, description: String = "Selected") =
+        Icon(painterResource(R.drawable.check_24px), description, modifier, tint)
 }

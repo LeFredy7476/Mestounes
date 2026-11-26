@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
         Log.d("MainActivity", "onCreate called")
+        LocalLibrary.require(applicationContext)
         enableEdgeToEdge()
         setContent { MainView() }
     }
