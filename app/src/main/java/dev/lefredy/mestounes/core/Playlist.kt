@@ -23,6 +23,12 @@ class Playlist private constructor(
         mutableListOf()
     )
 
+    companion object {
+        suspend fun createPlaylist(name: String, tracks: List<Track>): Playlist {
+            return Playlist(null, name, true, null, System.currentTimeMillis(), false, tracks.toMutableList()).saveWithTracks()
+        }
+    }
+
     fun toPlaylistEntity() = PlaylistEntity(
         id, name, owned, playlistRef, updatedAt, deleted
     )
