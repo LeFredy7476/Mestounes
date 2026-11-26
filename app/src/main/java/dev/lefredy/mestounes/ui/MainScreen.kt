@@ -86,9 +86,8 @@ fun MainScreen(
             MainTab.Albums -> TabPlaceholderView(tab.title) {
                 Icons.Album(Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
             } // TODO: Issue #7 - AlbumList view
-            MainTab.Tracks -> TabPlaceholderView(tab.title) {
-                Icons.MusicNote(Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
-            } // TODO: Issue #6 - TrackList view
+            MainTab.Tracks -> TrackListScreen()
+
             MainTab.Genres -> TabPlaceholderView(tab.title) {
                 Icons.Equalizer(Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
             } // TODO: Issue #10 - GenreList view

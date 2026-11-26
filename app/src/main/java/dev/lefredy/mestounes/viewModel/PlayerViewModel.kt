@@ -101,6 +101,7 @@ class PlayerViewModel {
     }
 
     fun loadPlaylist(mediaitems: List<MediaItem>, startIndex: Int = 0) {
+        if (player == null) return
         player!!.setMediaItems(mediaitems, startIndex, 0L)
         player!!.prepare()
         player?.repeatMode = Player.REPEAT_MODE_ALL
