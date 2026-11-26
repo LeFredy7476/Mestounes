@@ -9,14 +9,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
-import dev.lefredy.mestounes.registry.LibraryDatabase
+import dev.lefredy.mestounes.modules.FileProvider
+import dev.lefredy.mestounes.modules.MediaPlayer
 import dev.lefredy.mestounes.registry.LocalLibrary
 import dev.lefredy.mestounes.ui.MainView
-import dev.lefredy.mestounes.viewModel.PlayerViewModel
 
 class MainActivity : ComponentActivity() {
 
-    val playerViewModel = PlayerViewModel.require()
+    private var mediaPlayer: MediaPlayer? = null
+    private var localLibrary: LocalLibrary? = null
+    private var fileProvider: FileProvider? = null
 
     private var controllerFuture: ListenableFuture<MediaController>? = null
     private val controller: MediaController?
@@ -26,16 +28,14 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         Log.d("MainActivity", "onStart called")
 
-        val localLibrary = LocalLibrary.require(applicationContext)
+        mediaPlayer = MediaPlayer.require()
+        localLibrary = LocalLibrary.require(applicationContext)
+        fileProvider = FileProvider.require(applicationContext)
 
         val sessionToken = SessionToken(this, ComponentName(this, MediaService::class.java))
         controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
-//        controllerFuture?.addListener({
-//            controller?.let {
-////                playerViewModel.setupPlayer(it)
-//                Log.d("MainActivity", "controller loaded")
-//            }
-//        }, MoreExecutors.directExecutor())
+
+        fileProvider?.onStartup() // remove if any casualties
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Log.d("MainActivity", "onCreate called")
         LocalLibrary.require(applicationContext)
+        FileProvider.require(applicationContext)
         enableEdgeToEdge()
         setContent { MainView() }
     }
@@ -55,7 +56,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         Log.d("MainActivity", "onDestroy called")
-        playerViewModel.clearView()
+        mediaPlayer?.purgeListeners()
         super.onDestroy()
     }
 }

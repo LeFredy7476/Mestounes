@@ -1,6 +1,7 @@
 package dev.lefredy.mestounes.ui
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -28,7 +29,6 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -60,9 +60,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.media3.common.MediaItem
-import dev.lefredy.mestounes.viewModel.LocalMusicViewModel
-import dev.lefredy.mestounes.viewModel.PlayerViewModel
+import dev.lefredy.mestounes.core.Track
+import dev.lefredy.mestounes.modules.MediaPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -88,10 +87,10 @@ interface PlayerSheetProxy {
 @Composable
 fun PlayerScreen(screenPaddingValues: PaddingValues = PaddingValues(), content : @Composable (PlayerSheetProxy) -> Unit) {
 
-    val playerViewModel = PlayerViewModel.require()
+    val mediaPlayer = MediaPlayer.require()
 
-    var isPlaying by remember { mutableStateOf(playerViewModel.isPlaying) }
-    playerViewModel.onIsPlayingChanged += fun (playing: Boolean) {
+    var isPlaying by remember { mutableStateOf(mediaPlayer.isPlaying()) }
+    mediaPlayer.onIsPlayingChanged += fun (playing: Boolean) {
         isPlaying = playing
     }
 
@@ -172,12 +171,12 @@ fun PlayerScreen(screenPaddingValues: PaddingValues = PaddingValues(), content :
                             translationY = -offsetDp
                         }
                 ) {
-                    var currentMediaItem by remember { mutableStateOf<MediaItem?>(null) }
-                    playerViewModel.onMediaMetadataChanged += { metadata ->
-                        currentMediaItem = playerViewModel.getCurrentMediaItem()
+                    var currentTrack by remember { mutableStateOf<Track?>(null) }
+                    mediaPlayer.onMediaMetadataChanged += {
+                        currentTrack = mediaPlayer.getCurrentTrack()
                     }
-                    playerViewModel.onPlayerReady += {
-                        currentMediaItem = playerViewModel.getCurrentMediaItem()
+                    mediaPlayer.onPlayerReady += {
+                        currentTrack = mediaPlayer.getCurrentTrack()
                     }
                     Column(
                         modifier = Modifier
@@ -187,14 +186,14 @@ fun PlayerScreen(screenPaddingValues: PaddingValues = PaddingValues(), content :
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            currentMediaItem?.mediaMetadata?.title?.toString() ?: "no song playing",
+                            currentTrack?.title ?: "no song playing",
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 18.sp,
                             softWrap = true,
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            currentMediaItem?.mediaMetadata?.artist?.toString() ?: "unknown artist",
+                            currentTrack?.artistsString() ?: "unknown artist",
                             softWrap = true,
                             fontSize = 14.sp,
                             overflow = TextOverflow.Ellipsis,
@@ -211,20 +210,20 @@ fun PlayerScreen(screenPaddingValues: PaddingValues = PaddingValues(), content :
                         ) {
                             val size = Modifier.size(48.dp)
                             IconButton(
-                                onClick = {playerViewModel.prev()},
+                                onClick = {mediaPlayer.executePrev()},
                                 modifier = Modifier.weight(1f),
                                 content = { Icons.SkipPrevious(size) }
                             )
                             IconButton(
                                 onClick = {
-                                    if (isPlaying) playerViewModel.stop()
-                                    else playerViewModel.play()
+                                    if (isPlaying) mediaPlayer.executePause()
+                                    else mediaPlayer.executePlay()
                                 },
                                 modifier = Modifier.weight(2f),
                                 content = { if (isPlaying) Icons.Pause(size) else Icons.Play(size) }
                             )
                             IconButton(
-                                onClick = {playerViewModel.skip()},
+                                onClick = {mediaPlayer.executeNext()},
                                 modifier = Modifier.weight(1f),
                                 content = { Icons.SkipNext(size) }
                             )
@@ -261,20 +260,20 @@ fun MiniPlayer(
 
     val iconSize = 40.dp
 
-    val playerViewModel = PlayerViewModel.require()
-    val localMusicViewModel = LocalMusicViewModel.require()
+    val mediaPlayer = MediaPlayer.require()
 
-    var isPlaying by remember { mutableStateOf(playerViewModel.isPlaying) }
-    playerViewModel.onIsPlayingChanged += fun (playing: Boolean) {
+    var isPlaying by remember { mutableStateOf(mediaPlayer.isPlaying()) }
+    mediaPlayer.onIsPlayingChanged += fun (playing: Boolean) {
         isPlaying = playing
     }
 
-    var currentMediaItem by remember { mutableStateOf<MediaItem?>(null) }
-    playerViewModel.onMediaMetadataChanged += { metadata ->
-        currentMediaItem = playerViewModel.getCurrentMediaItem()
+    var currentTrack by remember { mutableStateOf<Track?>(null) }
+    mediaPlayer.onMediaItemTransition += {
+        Log.d("PlayerScreen", "${mediaPlayer.getCurrentTrack()}")
+        currentTrack = mediaPlayer.getCurrentTrack()
     }
-    playerViewModel.onPlayerReady += {
-        currentMediaItem = playerViewModel.getCurrentMediaItem()
+    mediaPlayer.onPlayerReady += {
+        currentTrack = mediaPlayer.getCurrentTrack()
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -315,7 +314,7 @@ fun MiniPlayer(
         ) {
             Column() {
                 Text(
-                    currentMediaItem?.mediaMetadata?.title?.toString() ?: "no song playing",
+                    currentTrack?.title ?: "no song playing",
                     modifier = Modifier.basicMarquee(
                         iterations = Int.MAX_VALUE,
                         initialDelayMillis = 3000,
@@ -328,7 +327,7 @@ fun MiniPlayer(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    currentMediaItem?.mediaMetadata?.artist?.toString() ?: "unknown artist",
+                    currentTrack?.artistsString() ?: "unknown artist",
                     softWrap = false,
                     fontSize = 14.sp,
                     overflow = TextOverflow.Ellipsis,
@@ -341,13 +340,13 @@ fun MiniPlayer(
             IconButton(
                 enabled = 0.9f < sheetAnimationAxis(),
                 modifier = size,
-                onClick = playerViewModel::prev,
+                onClick = mediaPlayer::executePrev,
                 content = { Icons.SkipPrevious(size, MaterialTheme.colorScheme.primary) }
             )
             IconButton(
                 enabled = 0.9f < sheetAnimationAxis(),
                 modifier = size,
-                onClick = { if (isPlaying) playerViewModel.stop() else playerViewModel.play() },
+                onClick = { if (isPlaying) mediaPlayer.executePause() else mediaPlayer.executePlay() },
                 content = {
                     if (isPlaying) Icons.Pause(size)
                     else Icons.Play(size)
@@ -356,7 +355,7 @@ fun MiniPlayer(
             IconButton(
                 enabled = 0.9f < sheetAnimationAxis(),
                 modifier = size,
-                onClick = playerViewModel::skip,
+                onClick = mediaPlayer::executeNext,
                 content = { Icons.SkipNext(size, MaterialTheme.colorScheme.primary) }
             )
         }
@@ -381,23 +380,22 @@ fun millisToText(millis: Long): String {
 }
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PlaybackSlider(isPlayerOpen: () -> Boolean) {
-    val playerViewModel = PlayerViewModel.require()
+    val mediaPlayer = remember { MediaPlayer.require() }
     var currentPosition by remember { mutableFloatStateOf(0f) }
     var isSeeking by remember { mutableStateOf(false) }
-    var mediaDuration by remember { mutableLongStateOf(playerViewModel.duration.coerceAtLeast(1L)) }
-    var mediaCurrentPosition by remember { mutableLongStateOf(playerViewModel.currentPosition) }
+    var mediaDuration by remember { mutableLongStateOf(mediaPlayer.getCurrentDuration().coerceAtLeast(1L)) }
+    var mediaCurrentPosition by remember { mutableLongStateOf(mediaPlayer.getCurrentPosition()) }
 
     // Update current position periodically while playing
-    LaunchedEffect(playerViewModel) {
+    LaunchedEffect(mediaPlayer) {
         while (true) {
 //            Log.d("MainActivity", "effect iteration (${isPlayerOpen()})")
             if (!isSeeking && isPlayerOpen()) {
-                currentPosition = playerViewModel.currentPosition.toFloat() / playerViewModel.duration.coerceAtLeast(1L).toFloat()
-                mediaCurrentPosition = playerViewModel.currentPosition
-                mediaDuration = playerViewModel.duration
+                currentPosition = mediaPlayer.getCurrentPosition().toFloat() / mediaPlayer.getCurrentDuration().coerceAtLeast(1L).toFloat()
+                mediaCurrentPosition = mediaPlayer.getCurrentPosition()
+                mediaDuration = mediaPlayer.getCurrentDuration()
             }
             delay(100L.milliseconds) // Update every half second
         }
@@ -411,10 +409,10 @@ fun PlaybackSlider(isPlayerOpen: () -> Boolean) {
             onValueChange = { newValue ->
                 isSeeking = true
                 currentPosition = newValue
-                mediaCurrentPosition = (currentPosition * playerViewModel.duration).toLong()
+                mediaCurrentPosition = (currentPosition * mediaPlayer.getCurrentDuration()).toLong()
             },
             onValueChangeFinished = {
-                playerViewModel.seekTo((currentPosition * playerViewModel.duration).toLong())
+                mediaPlayer.executeSeek((currentPosition * mediaPlayer.getCurrentDuration()).toLong())
                 isSeeking = false
             },
             modifier = Modifier.fillMaxWidth()
@@ -431,7 +429,6 @@ fun PlaybackSlider(isPlayerOpen: () -> Boolean) {
 }
 
 @SuppressLint("UseOfNonLambdaOffsetOverload")
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun InteractiveWavySlider(
     value: Float,

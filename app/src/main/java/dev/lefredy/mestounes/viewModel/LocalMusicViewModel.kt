@@ -10,11 +10,7 @@ import com.simplecityapps.ktaglib.KTagLib
 import dev.lefredy.mestounes.core.MusicMediadata
 import java.io.File
 
-class Directory (
-    val musics: List<String>,
-    val folders: List<String>
-)
-
+@Deprecated("Will be removed soon")
 class LocalMusicViewModel {
     companion object {
         var instance: LocalMusicViewModel? = null
@@ -25,6 +21,11 @@ class LocalMusicViewModel {
             }
             return instance!!
         }
+
+        class Directory (
+            val musics: List<String>,
+            val folders: List<String>
+        )
     }
 
     val cachedFolders: MutableMap<String, Directory> = mutableMapOf()

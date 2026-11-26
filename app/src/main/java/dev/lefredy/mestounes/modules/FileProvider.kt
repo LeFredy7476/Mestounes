@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import android.util.Log
 import dev.lefredy.mestounes.registry.LocalLibrary
+import dev.lefredy.mestounes.storage.Stockage
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FileProvider private constructor(
@@ -38,8 +39,9 @@ class FileProvider private constructor(
     }
 
     //temporary
-    val lastUpdate: Long
-        get() = 0
+    var lastUpdate: Long
+        get() = try { Stockage(context).chargerLong("lastUpdate") } catch (e: Exception) { 0L }
+        set(value) = try { Stockage(context).sauvegarderLong("lastUpdate", value) } catch (e: Exception) {}
 
     fun onStartup(): Unit {
         // TODO: start a thread to scan library
@@ -81,6 +83,7 @@ class FileProvider private constructor(
                             }
                         }
                     }
+                    lastUpdate = System.currentTimeMillis()
                 } else {
                     Log.d("FileProvider", "Library root folder doesn't exist")
                 }

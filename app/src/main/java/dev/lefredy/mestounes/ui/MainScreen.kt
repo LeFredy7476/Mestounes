@@ -92,7 +92,10 @@ fun MainScreen(
             MainTab.Tags -> TabPlaceholderView(tab.title) {
                 Icons.Tag(Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
             } // TODO: TagList view
-            MainTab.Folders -> LocalFolderTabScreen(navController, playerSheetProxy) // TODO: Issue #14 - DirectoryList view
+            // MainTab.Folders -> LocalFolderTabScreen(navController, playerSheetProxy)
+            MainTab.Folders -> TabPlaceholderView(tab.title) {
+                Icons.Folder(Modifier.size(48.dp), MaterialTheme.colorScheme.primary)
+            } // TODO: Issue #14 - DirectoryList view
         }
     }
 }

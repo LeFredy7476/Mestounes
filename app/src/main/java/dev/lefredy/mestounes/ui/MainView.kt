@@ -24,9 +24,6 @@ import dev.lefredy.mestounes.viewModel.PlayerViewModel
 
 @Composable
 fun MainView() {
-    val playerViewModel = PlayerViewModel.require()
-    val localMusicViewModel = LocalMusicViewModel.require()
-    val context = LocalContext.current
     val navController = rememberNavController()
 
     //rememberManagedExoPlayer()

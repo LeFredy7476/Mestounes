@@ -1,6 +1,5 @@
 package dev.lefredy.mestounes.ui
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
@@ -46,19 +45,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import dev.lefredy.mestounes.core.Track
+import dev.lefredy.mestounes.modules.MediaPlayer
 import dev.lefredy.mestounes.registry.LocalLibrary
 import dev.lefredy.mestounes.registry.entity.ArtistItem
 import dev.lefredy.mestounes.registry.entity.TrackEntity
 import dev.lefredy.mestounes.registry.entity.TrackWithArtist
 import dev.lefredy.mestounes.ui.theme.PremierKotlinAppTheme
-import dev.lefredy.mestounes.viewModel.PlayerViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 import kotlin.math.roundToInt
 
 /**
@@ -76,60 +70,33 @@ fun TrackListScreen(
         }
     }
 
+    val mediaPlayer = remember { MediaPlayer.require() }
+    var currentTrack by remember { mutableStateOf(mediaPlayer.getCurrentTrack()) }
 
-    val playerViewModel = remember { PlayerViewModel.require() }
-    var currentlyPlayingPath by remember { mutableStateOf(playerViewModel.getCurrentMediaId()) }
-
-    LaunchedEffect(playerViewModel) {
-        playerViewModel.onPlayerReady += {
-            currentlyPlayingPath = playerViewModel.getCurrentMediaId()
+    LaunchedEffect(mediaPlayer) {
+         mediaPlayer.onPlayerReady += {
+            currentTrack = mediaPlayer.getCurrentTrack()
         }
-        playerViewModel.onMediaMetadataChanged += {
-            currentlyPlayingPath = playerViewModel.getCurrentMediaId()
+        mediaPlayer.onMediaItemTransition += {
+            currentTrack = mediaPlayer.getCurrentTrack()
         }
     }
 
     val scope = rememberCoroutineScope()
     TrackListContent(
         tracks = tracks,
-        currentlyPlayingPath = currentlyPlayingPath,
+        currentTrack = currentTrack,
         onTrackClick = { clickedTrack, orderedTracks ->
             scope.launch {
                 val startIndex = orderedTracks.indexOf(clickedTrack).coerceAtLeast(0)
-                val mediaItems = withContext(Dispatchers.Default) {
-                    orderedTracks.map { it.toMediaItem() }
-                }
-                playerViewModel.loadPlaylist(mediaItems, startIndex)
-                playerViewModel.play()
-                currentlyPlayingPath = clickedTrack.path
+                mediaPlayer.loadQueue(orderedTracks, startIndex, 0L)
+                mediaPlayer.executePlay()
+                currentTrack = clickedTrack
             }
         },
         modifier = modifier,
     )
 
-}
-
-private fun Track.toMediaItem(): MediaItem {
-    val uri = if (path.startsWith("file://") || path.startsWith("content://")) {
-        Uri.parse(path)
-    } else {
-        Uri.fromFile(File(path))
-    }
-
-    val mediaMetadata = MediaMetadata.Builder()
-        .setTitle(title)
-        .setArtist(artists.joinToString(", ") { it.name })
-        .setAlbumArtist(albumArtist.name)
-        .setAlbumTitle(album)
-        .setTrackNumber(trackNumber)
-        .setDiscNumber(discNumber)
-        .build()
-
-    return MediaItem.Builder()
-        .setUri(uri)
-        .setMediaId(path)
-        .setMediaMetadata(mediaMetadata)
-        .build()
 }
 
 /**
@@ -138,14 +105,14 @@ private fun Track.toMediaItem(): MediaItem {
 @Composable
 fun TrackListContent(
     tracks: List<Track>,
-    currentlyPlayingPath: String? = null,
+    currentTrack: Track? = null,
     onTrackClick: (clickedTrack: Track, orderedTracks: List<Track>) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     var selectedSort by remember { mutableStateOf(TrackSortOption.Alphabetical) }
     var sortDirection by remember { mutableStateOf(SortDirection.Ascending) }
 
-    val sections =  remember(tracks, selectedSort, sortDirection) { sortAndGroupTracks(tracks, selectedSort, sortDirection) }
+    val sections = remember(tracks, selectedSort, sortDirection) { sortAndGroupTracks(tracks, selectedSort, sortDirection) }
 
     val orderedTracks = remember(sections) { sections.flatMap { it.tracks } }
 
@@ -183,7 +150,7 @@ fun TrackListContent(
                         if (section.header != null){
                             item(key = "Header_${section.header}") { SectionHeader(section.header) }
                         }
-                        items(section.tracks, key = { it.path }) { track -> TrackListItem(track = track, isPlaying = track.path == currentlyPlayingPath ,onClick = {onTrackClick(track, orderedTracks)} ) }
+                        items(section.tracks, key = { it.path }) { track -> TrackListItem(track = track, isPlaying = track == currentTrack, onClick = {onTrackClick(track, orderedTracks)} ) }
                     }
                     item ( key = "bottom_spacer" ) { Spacer(Modifier.height(80.dp)) }
                 }
@@ -374,7 +341,7 @@ fun TrackListPreview() {
         )
         TrackListContent(
             tracks = sampleTracks,
-            currentlyPlayingPath = sampleTracks[1].path,
+            currentTrack = sampleTracks[1],
         )
     }
 }

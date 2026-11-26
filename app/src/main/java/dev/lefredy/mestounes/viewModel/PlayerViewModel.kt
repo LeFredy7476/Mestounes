@@ -6,6 +6,7 @@ import androidx.media3.common.Player
 import dev.lefredy.mestounes.utils.*
 
 
+@Deprecated("Will be removed soon")
 class PlayerViewModel {
     companion object {
         var instance: PlayerViewModel? = null

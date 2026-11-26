@@ -6,24 +6,24 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
+import dev.lefredy.mestounes.modules.FileProvider
 import dev.lefredy.mestounes.modules.MediaPlayer
 import dev.lefredy.mestounes.registry.LocalLibrary
-import dev.lefredy.mestounes.viewModel.PlayerViewModel
 
 
 class MediaService : MediaSessionService() {
-
-    private val playerViewModel = PlayerViewModel.require() // DEPRECATED
-    private val mediaPlayer = MediaPlayer.require()
-    private var mediaPlayerCleanup: () -> Unit = {}
     private var exoPlayer: ExoPlayer? = null
+    private var mediaPlayerCleanup: () -> Unit = {}
     private var mediaSession: MediaSession? = null
+    private var localLibrary: LocalLibrary? = null
+    private var fileProvider: FileProvider? = null
 
     override fun onCreate() {
 
         Log.d("MediaService", "onCreate called")
 
-        val localLibrary = LocalLibrary.require(applicationContext)
+        localLibrary = LocalLibrary.require(applicationContext)
+        fileProvider = FileProvider.require(applicationContext)
 
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
@@ -40,8 +40,7 @@ class MediaService : MediaSessionService() {
             }
         exoPlayer = player
         mediaSession = MediaSession.Builder(this, player).build()
-        mediaPlayerCleanup = mediaPlayer.init(player)
-        playerViewModel.setupPlayer(player) // DEPRECATED
+        mediaPlayerCleanup = MediaPlayer.require().init(player)
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
@@ -53,7 +52,6 @@ class MediaService : MediaSessionService() {
         Log.d("MediaService", "onDestroy called")
 
         mediaPlayerCleanup()
-        playerViewModel.clearPlayer() // DEPRECATED
         mediaSession?.run {
             player.release()
             release()
