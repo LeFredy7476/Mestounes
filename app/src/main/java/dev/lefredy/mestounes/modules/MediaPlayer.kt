@@ -5,39 +5,45 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MediaPlayer private constructor(
-    private val player: androidx.media3.common.Player
-){
+class MediaPlayer private constructor() {
+
+    var player: androidx.media3.common.Player? = null
 
     companion object {
-        private val instanceDeferred = CompletableDeferred<MediaPlayer>()
 
-        fun init(player: androidx.media3.common.Player): MediaPlayer {
-            try {
-                return instanceDeferred.getCompleted()
-            } catch (_: Exception) {
-                val fileProvider = MediaPlayer(player)
-                instanceDeferred.complete(fileProvider)
-                return fileProvider
-            }
-        }
+        const val CODE_OK = 0
+        const val CODE_NOT_INITIALIZED = 1
 
-        suspend fun require(): MediaPlayer {
-            return instanceDeferred.await()
+        private var instance: MediaPlayer? = null
+
+        fun require(): MediaPlayer {
+            if (instance == null) instance = MediaPlayer()
+            return instance!!
         }
     }
 
-    fun executePlay() {
-
+    fun init(_player: androidx.media3.common.Player): () -> Unit {
+        player = _player
+        return {
+            player = null
+        }
     }
-    fun executeStop() {
 
+    fun executePlay(): Int {
+        if (player == null) return CODE_NOT_INITIALIZED
+        return CODE_OK
     }
-    fun executeNext() {
-
+    fun executeStop(): Int {
+        if (player == null) return CODE_NOT_INITIALIZED
+        return CODE_OK
     }
-    fun executePrev() {
-        
+    fun executeNext(): Int {
+        if (player == null) return CODE_NOT_INITIALIZED
+        return CODE_OK
+    }
+    fun executePrev(): Int {
+        if (player == null) return CODE_NOT_INITIALIZED
+        return CODE_OK
     }
 
 }
