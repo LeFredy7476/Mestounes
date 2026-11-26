@@ -1,13 +1,14 @@
 package dev.lefredy.mestounes.registry.entity
 
 import androidx.room3.*
+import java.util.UUID
 
 @Entity(
     tableName = "tracks"
 )
 data class TrackEntity (
     @PrimaryKey val path: String,
-    val trackId: Long?, // server id, (null means local only)
+    val trackId: UUID?, // server id, (null means local only)
     val title: String,
     val mediaLength: Long,
     val album: String,

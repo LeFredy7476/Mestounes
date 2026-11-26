@@ -8,6 +8,9 @@ class Artist (
     constructor (artistItem: dev.lefredy.mestounes.registry.entity.ArtistItem): this (
         artistItem.name
     )
+    constructor (artistEntity: dev.lefredy.mestounes.registry.entity.ArtistEntity): this (
+        artistEntity.name
+    )
 
     fun toArtistEntity(trackPath: String, index: Number) = dev.lefredy.mestounes.registry.entity.ArtistEntity(
         trackPath, name, index.toByte()
