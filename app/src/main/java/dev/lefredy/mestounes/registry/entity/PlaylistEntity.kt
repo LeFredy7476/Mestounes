@@ -18,7 +18,7 @@ data class PlaylistEntity (
 
 @Entity(
     tableName = "playlist_tracks",
-    primaryKeys = ["path", "id", "index"],
+    primaryKeys = ["id", "index"],
     indices = [Index("id")],
     foreignKeys = [
         ForeignKey(PlaylistEntity::class, ["id"], ["id"], onDelete = ForeignKey.CASCADE),

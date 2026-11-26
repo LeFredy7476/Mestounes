@@ -149,8 +149,9 @@ class LocalLibrary private constructor(
     }
 
     suspend fun fillPlaylist(playlist: Playlist) {
-        if (playlist.id == null || playlist.tracks == null) return
-        libraryDatabase.playlistDao().clearPlaylist(playlist.id!!)
-        libraryDatabase.playlistDao().fillPlaylist(playlist.tracks!!.mapIndexed { index, track -> PlaylistItem(playlist.id!!, track.path, index.toShort()) })
+        val id = playlist.id
+        val tracks = playlist.tracks
+        if (id == null || tracks == null) return
+        libraryDatabase.playlistDao().replacePlaylistItems(id, tracks.mapIndexed { index, track -> PlaylistItem(id, track.path, index.toShort()) })
     }
 }

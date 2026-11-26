@@ -26,7 +26,7 @@ interface PlaylistDao {
     suspend fun clearPlaylist(playlistId: Long)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun fillPlaylist(playlistItems: List<PlaylistItem>)
+    suspend fun fillPlaylist(items: List<PlaylistItem>)
 
     @Insert
     suspend fun insertPlaylist(playlistEntity: PlaylistEntity): Long
@@ -40,4 +40,10 @@ interface PlaylistDao {
     @Transaction
     @Query("DELETE FROM playlists WHERE deleted = 1")
     suspend fun flushDeletedPlaylists()
+
+    @Transaction
+    suspend fun replacePlaylistItems(playlistId: Long, items: List<PlaylistItem>) {
+        clearPlaylist(playlistId)
+        fillPlaylist(items)
+    }
 }
