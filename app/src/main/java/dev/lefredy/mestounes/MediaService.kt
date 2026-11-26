@@ -6,14 +6,16 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
-import dev.lefredy.mestounes.registry.LibraryDatabase
+import dev.lefredy.mestounes.modules.MediaPlayer
 import dev.lefredy.mestounes.registry.LocalLibrary
 import dev.lefredy.mestounes.viewModel.PlayerViewModel
 
 
 class MediaService : MediaSessionService() {
 
-    private val playerViewModel = PlayerViewModel.require()
+    private val playerViewModel = PlayerViewModel.require() // DEPRECTED
+    private val mediaPlayer = MediaPlayer.require()
+    private var mediaPlayerCleanup: () -> Unit = {}
     private var exoPlayer: ExoPlayer? = null
     private var mediaSession: MediaSession? = null
 
@@ -38,7 +40,8 @@ class MediaService : MediaSessionService() {
             }
         exoPlayer = player
         mediaSession = MediaSession.Builder(this, player).build()
-        playerViewModel.setupPlayer(player)
+        mediaPlayerCleanup = mediaPlayer.init(player)
+        playerViewModel.setupPlayer(player) // DEPRECTED
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
@@ -49,7 +52,8 @@ class MediaService : MediaSessionService() {
 
         Log.d("MediaService", "onDestroy called")
 
-        playerViewModel.clearPlayer()
+        mediaPlayerCleanup()
+        playerViewModel.clearPlayer() // DEPRECTED
         mediaSession?.run {
             player.release()
             release()

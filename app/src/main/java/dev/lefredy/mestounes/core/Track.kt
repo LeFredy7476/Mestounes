@@ -148,6 +148,9 @@ class Track private constructor (
         LocalLibrary.require().saveTrack(this)
     }
 
+    fun artistsString() = artists.joinToString(", ", transform = Artist::name)
+    fun genreString() = genres?.joinToString(", ", transform = Genre::name) ?: "Unknown"
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Track) return false
