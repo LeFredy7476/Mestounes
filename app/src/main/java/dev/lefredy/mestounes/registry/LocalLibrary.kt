@@ -134,6 +134,8 @@ class LocalLibrary private constructor(
 
     suspend fun getPlaylists() = libraryDatabase.playlistDao().getAll().map(::Playlist)
 
+    suspend fun getPlaylistsWithDeleted() = libraryDatabase.playlistDao().getAllAndDeleted().map(::Playlist)
+
     suspend fun getPlaylistTracks(playlist: Playlist) = playlist.id?.let{libraryDatabase.playlistDao().getPlaylistTracks(it).map(::Track)} ?: listOf()
 
     suspend fun fillPlaylist(playlist: Playlist) {

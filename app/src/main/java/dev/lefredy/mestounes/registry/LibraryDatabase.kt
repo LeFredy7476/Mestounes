@@ -11,7 +11,7 @@ import dev.lefredy.mestounes.registry.dao.TrackDao
 import dev.lefredy.mestounes.registry.entity.*
 
 @Database(
-    version = 1,
+    version = 2,
     entities = [
         TrackEntity::class,
         ArtistEntity::class,

@@ -13,8 +13,11 @@ interface PlaylistDao {
     @Transaction @Query("SELECT * FROM tracks WHERE path = :path")
     suspend fun getTrack(path: String): TrackWithArtist? // I KNOW IT'S A DUPLICATE, for the sake of simplicity lemme keep that one
 
-    @Query("SELECT * FROM playlists ORDER BY owned DESC, name ASC")
+    @Query("SELECT * FROM playlists WHERE deleted = 0 ORDER BY owned DESC, name ASC")
     suspend fun getAll(): List<PlaylistEntity>
+
+    @Query("SELECT * FROM playlists ORDER BY owned DESC, name ASC")
+    suspend fun getAllAndDeleted(): List<PlaylistEntity>
 
     @Transaction @Query("SELECT t.* FROM tracks t INNER JOIN playlist_tracks pt ON t.path = pt.path WHERE pt.id = :playlist ORDER BY pt.`index` ASC")
     suspend fun getTracksFromPlaylist(playlist: Long): List<TrackEntity>
