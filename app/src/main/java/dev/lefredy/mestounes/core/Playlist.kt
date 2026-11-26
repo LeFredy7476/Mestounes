@@ -81,7 +81,7 @@ class Playlist private constructor(
             return LocalLibrary.require().deletePlaylist(this)
         }
         deleted = true
-        tracks?.clear()
+        tracks = mutableListOf()
         updatedAt = System.currentTimeMillis()
         saveWithTracks()
         if (owned && playlistRef != null) {
